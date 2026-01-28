@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  tailwind-dev:
+    build:
+      context: .
+      dockerfile: develop.Dockerfile
+    container_name: tailwind-landing-dev
+    ports:
+      - "3000:3000"
+      - "24678:24678"  # For Vite HMR if using Vite
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./tailwind.config.js:/app/tailwind.config.js
+      - ./postcss.config.js:/app/postcss.config.js
+    environment:
+      - NODE_ENV=development
+      - VITE_APP_ENV=development
+      - VITE_API_URL=http://localhost:8000/api
+    command: npm run dev -- --host
