@@ -3,7 +3,7 @@ export const metadata = {
   description: "Page description",
 };
 
-import Hero from "@/components/HeroHome";
+import HeroHome from "@/components/HeroHome";
 import BusinessCategories from "@/components/BusinessCategories";
 import FeaturesPlanet from "@/components/FeaturesPlanet";
 import LargeTestimonial from "@/components/LargeTestimonial";
