@@ -1,4 +1,11 @@
+
 "use client";
+
+import { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import Header from "@/components/ui/header";
+import Footer from "@/components/ui/footer";
 
 export default function DefaultLayout({
   children,
@@ -12,14 +19,12 @@ export default function DefaultLayout({
       duration: 700,
       easing: "ease-out-cubic",
     });
-  });
+  }, []); // Added empty dependency array
 
   return (
     <>
       <Header />
-
       <main className="grow">{children}</main>
-
       <Footer border={true} />
     </>
   );
