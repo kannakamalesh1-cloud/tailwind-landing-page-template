@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  tailwind-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: tailwind-landing-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - NODE_ENV=production
+      - APP_ENV=production
+      - API_URL=https://api.example.com
+    restart: unless-stopped
+    networks:
+      - production-network
+
+networks:
+  production-network:
+    driver: bridge
