@@ -1,0 +1,64 @@
+# Dockerfile
+# Multi-stage build for Next.js 15 + Tailwind CSS 4
+
+# --- Base Stage ---
+FROM node:22-alpine AS base
+WORKDIR /app
+
+# Install pnpm (as specified in package.json)
+RUN npm install -g pnpm@10.15.1
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
+
+# --- Dependencies Stage ---
+FROM base AS deps
+# Install all dependencies (including dev for build)
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+# --- Development Stage ---
+FROM base AS development
+WORKDIR /app
+
+# Copy node_modules from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Set development environment
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV WATCHPACK_POLLING=true
+ENV CHOKIDAR_USEPOLLING=true
+
+# Expose port for dev server
+EXPOSE 3000
+
+# Start dev server with Turbopack
+CMD ["pnpm", "dev"]
+
+# --- Builder Stage ---
+FROM base AS builder
+WORKDIR /app
+
+# Copy node_modules from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Set production build environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+# Fix for Tailwind CSS 4 compatibility
+ENV TAILWIND_MODE=build
+
+# Create necessary configs if missing
+RUN if [ ! -f "tailwind.config.js" ] && [ ! -f "tailwind.config.ts" ]; then \
+    echo "module.exports = { content: ['./src/**/*.{js,ts,jsx,tsx}'] }" > tailwind.config.js; \
+    fi
+
+RUN if [ ! -f "postcss.config.js" ] && [ ! -f "postcss.config.ts" ]; then \
+    echo "module.exports = { plugins: { '@tailwindcss/postcss': {} } }" > postcss.config.js; \
+    fi
+
+# Build the application
+RUN pnpm run build
+
