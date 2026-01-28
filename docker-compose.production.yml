@@ -4,7 +4,7 @@ services:
   tailwind-prod:
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: production.Dockerfile
     container_name: tailwind-landing-prod
     ports:
       - "80:80"
